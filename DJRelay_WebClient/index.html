@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>DJ Relay</title>
+
+  
+  <link rel="stylesheet" href="css/foundation.css">
+  <link rel="shortcut icon" href="img/DJ_icon.ico">  
+
+  <script src="js/vendor/custom.modernizr.js"></script>
+
+</head>
+<body>
+   
+<!--     <script type="text/javascript">
+      (function() {
+       var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+       po.src = 'https://apis.google.com/js/client:plusone.js';
+       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+     })();
+    </script> -->
+    
+ <!-- Header and Nav --> 
+<nav class="top-bar">
+	<ul class="title-area">
+    	<li class="name">
+        	<h1><a href="#">DJ Relay</a></h1>
+        </li>
+<!--    <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a>
+        </li> -->
+    </ul>
+    <section class="top-bar-section">
+    	<ul class="right">
+        	<li>
+        		<a href="#" id=signOutButton class="button" onClick="signOut()">Sign Out</a>
+      		</li>
+      		<li>
+				<span id="signinButton">
+  					<span
+    				class="g-signin"
+    				data-callback="signinCallback"
+    				data-clientid="394218094207-psutb7crtq1ip1s9qqtfp254efejsfbk.apps.googleusercontent.com"
+    				data-cookiepolicy="single_host_origin"
+    				data-requestvisibleactions="http://schemas.google.com/AddActivity"
+    				data-scope="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/youtube">
+  					</span>
+				</span>        
+        	</li>
+      	</ul>
+    </section>
+</nav>
+ <!-- End of Header and Nav --> 
+    
+ <!-- Panel Header --> 
+  <div class="row"> 
+  	<div class="large-12 columns">
+      	<div class="panel">      		
+      		<img class="large-4" src="img/Das_DJ.png" id="testen"/>
+      		<div class="large-4 columns">
+      			<h1>DJ Relay</h1>
+      		</div>     		
+      	</div>       	
+     </div>    
+  </div>
+  <!-- End of Panel Header -->
+  
+  <div class="row">
+  <!-- Nav Sidebar -->
+    <!-- This is source ordered to be pulled to the left on larger screens -->
+    <div class="large-3 columns ">
+      <div class="panel">
+        <a href="#"><img id=profPic src="img/Das_DJ.png"/></a>
+        <h5><a href="#" id=feedUser></a></h5><br>
+        <form class="custom">
+        	Session ID: <input type="text" name="sessionID">
+      		<label for="sessionRadio"><input name="sessionRadio" type="radio" id="createRadio" style="display:none;" CHECKED><span class="custom radio selected"></span> Create Session</label>
+      		<label for="sessionRadio"><input name="sessionRadio" type="radio" id="joinRadio" style="display:none;"><span class="custom radio"></span> Join Session</label>
+        </form>
+        <button class="success round small" onClick="sessionListener()">
+        Let's Go
+        </button>
+        <br><br><br>
+        <p>Welcome to DJ Relay.  This is an application which allows people to create and join groups
+           with friends or whoever to share music with one another.  Here is how it works: </p>
+        <p>First, you are going to need to sign with your google plus account.  If you don't already
+           have one, get one its sweet.  Next, you will want to either create or join an existing session.
+           Then, once you have been logged into a session, go ahead and find a song you want to submit.</p>
+        <p><b>WARNING: </b>
+           This application utilizes the YouTube database and therefore you should be sure to check what you have selected is 
+           really what you want.  With great power comes great responsibility.</p>    
+      </div>
+    </div>
+
+    <!-- Main Feed -->
+    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
+    <div class="large-6 columns">
+    <h1><strong>Das Fütter:</strong></h1>
+    <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+    <div id="player"></div>
+    <button class = "small secondary" id="feedToggleButton" onclick="feedToggleListener();">
+     Load Feed Video
+    </button>
+    <div id="requestFields" style="display:none;">
+      <label for="tubeQuery">Search Entry: </label>
+      <input id="tubeQuery" type="text" style="color:#606055" value="Enter your Tube Search Here"
+      		 onClick="this.value='';" />
+      <button onclick="tubeSearch();">
+       Search
+      </button>
+      <button onclick="tubeSubmit();">
+       Submit
+      </button>
+    </div>
+    <!-- <div class="large-6 columns"> -->
+    <h1><strong>Result List:</strong></h1>
+<!--     </div>
+ -->    <!-- 1. The YT results will replace this <div> tag. -->
+    <div id="ytResults"> </div>
+ 	<br><br>
+ </div>
+ 
+    <!-- Right Sidebar -->
+    <!-- On small devices this column is hidden -->
+    <aside class="large-3 columns hide-for-small">
+      <h3>Das Zahlungsmittel:</h3>
+      <p><img src="http://placehold.it/300x440&text=[ad]" /></p>
+      <p><img src="http://placehold.it/300x440&text=[ad]" /></p>
+    </aside>
+ 
+  </div>
+ 
+ 
+  <!-- Footer -->
+  <footer class="row">
+    <div class="large-12 columns">
+      <hr />
+      <div class="row">
+        <div class="large-5 columns">
+          <p>&copy; Gizmo Gammon Solutions</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  document.write('<script src=' +
+  ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
+  '.js><\/script>')
+  </script>
+  
+  <!--  Use for released version
+  <script src="js/foundation.min.js"></script>
+  -->
+  
+  <script src="js/foundation/foundation.js"></script>
+  
+  <script src="js/foundation/foundation.alerts.js"></script>
+  
+  <script src="js/foundation/foundation.clearing.js"></script>
+  
+  <script src="js/foundation/foundation.cookie.js"></script>
+  
+  <script src="js/foundation/foundation.dropdown.js"></script>
+  
+  <script src="js/foundation/foundation.forms.js"></script>
+  
+  <script src="js/foundation/foundation.joyride.js"></script>
+  
+  <script src="js/foundation/foundation.magellan.js"></script>
+  
+  <script src="js/foundation/foundation.orbit.js"></script>
+  
+  <script src="js/foundation/foundation.reveal.js"></script>
+  
+  <script src="js/foundation/foundation.section.js"></script>
+  
+  <script src="js/foundation/foundation.tooltips.js"></script>
+  
+  <script src="js/foundation/foundation.topbar.js"></script>
+  
+  <script src="js/foundation/foundation.interchange.js"></script>
+  
+  <script src="js/foundation/foundation.placeholder.js"></script>
+  
+  <script src="js/foundation/foundation.abide.js"></script>
+  
+  <!-- load google+ api -->
+  <script type="text/javascript">
+      (function() {
+       var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+       po.src = 'https://apis.google.com/js/client:plusone.js';
+       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+     })();
+  </script>
+
+  <!-- YouTube Player Load and Control Script -->    
+  <script>
+      // 2. This code loads the IFrame Player API code asynchronously.
+      var tag = document.createElement('script');
+
+      tag.src = "//www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      // 3. This function creates an <iframe> (and YouTube player)
+      //    after the API code downloads.
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '270',
+          width: '480',
+          videoId: '96_vcFLWgYU',
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange,
+            'onError' : onPlayerError
+          }
+        });
+      }
+      
+      // Used to decipher yt player errors 
+      function onPlayerError(event) {
+    	  console.log(event.data);
+      }
+
+      // 4. The API will call this function when the video player is ready.
+      function onPlayerReady(event) {
+//        event.target.playVideo();
+      }
+
+      // 5. The API calls this function when the player's state changes.
+      //    The function indicates that when playing a video (state=1),
+      //    the player should play for six seconds and then stop.
+      var done = false;
+      function onPlayerStateChange(event) {
+      	if (event.data == YT.PlayerState.PLAYING && !done) {
+         	//setTimeout(stopVideo, 6000);
+          	//done = true; 
+        }
+        if (event.data == YT.PlayerState.ENDED && inSession && isMaster){
+			var request = {'updateFeed': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
+  				$.post(hostURL, request, 
+  					function (result){
+  						// TODO - Add more descriptive error messages for user 
+  						console.log(result);
+  						if (result.dbCon == true && result.masterPresent == true && result.usersPresent == true
+  								&& result.updateFeed == true) {
+  							player.cueVideoById(result.selectedUser.selected_tubeID);
+  							// TODO - get user's name/pic and display on site 
+  						} else {
+  							// TODO - add more error handling functionality 
+  							alert('Not able to update feed..');
+  						}
+  					}, 'json'); 
+         }
+      }
+      
+      function stopVideo() {
+      	player.stopVideo();
+      }
+  </script>
+  
+  <!--  Main Control Script --> 
+  <script>
+  		var apiKey = 'AIzaSyBkTpVRddgK2iMsV2d9mzId_Bq20_YC4nA';
+  		var apiResponse;
+  		var hostURL = 'http://192.168.1.71/git/com.DJRelayServer_ACE.djRelayServer/DJ_Relay_Server/relayMain.php';	// xampp dev URL 
+  		var signedIn = false;
+  		var inSession = false;				// session connection status 
+  		var isMaster = true;				// session mode - only updated on server response		
+  		var sessionType = 'createSession';	// session mode - user radio button input status 
+  		var mSessionId;
+  		var mVideoId;
+  		var mUserId, mUserName;
+  		var feedToggle = false;				// false = user's video is loaded to player, true = feed video is loaded to player 
+  		
+  		// Callback for google API 
+  		function OnLoadCallback() {
+  			console.log('Google API loaded.');
+  	 		
+ 			// Set API KEY 
+  	      	gapi.client.setApiKey(apiKey);
+ 			
+ 			gapi.client.load('youtube', 'v3', searchSetup);
+  		}
+  		
+  		function searchSetup() {
+  			console.log('So far so good..');
+  	        document.getElementById('requestFields').style.display = '';
+  		}
+  		
+  		// onClick handler of YouTube Search button 
+  		function tubeSearch(){
+  			console.log('tubeSearch invoked');
+  			if (!signedIn) {
+  				alert('Must be signed in to Google Plus to Play!');
+  			} else {
+  				function displayResponse(resp) {
+  					apiResponse = resp;
+  					var str = JSON.stringify(resp.result);
+  					var list = document.getElementById('ytResults');
+  					var listItem = list.getElementsByTagName('li');
+  					var results = new Array();
+  					console.log(resp);
+  					for (i = 0; i < resp.pageInfo.resultsPerPage; i++) {
+  						results[i] = resp.items[i].snippet.title;
+  						console.log(results[i] + "   i= " + i);
+  					}
+					$('#ytResults').empty();
+ 					$.each(results, function(i,v) {
+						$('#ytResults').append("<li>" + v + "</li>");
+					}); 
+  				}
+  				var searchInput = document.getElementById('tubeQuery').value;
+  				var requestParams = {q: searchInput, part: 'snippet',
+  								 	type: 'video', maxResults: '20',
+  								 	videoEmbeddable: 'true'};
+  				var request = gapi.client.youtube.search.list(requestParams);
+  				request.execute(displayResponse);
+  			};
+  		}
+  		
+  		// Tube result list onClick handler 
+  		$('#ytResults').on('click', 'li', function (event) {
+  			var index = $(this).index();
+			console.log('List item onClick handler invoked for index ' + index);
+			mVideoId = apiResponse.items[index].id.videoId;
+			player.cueVideoById(mVideoId);
+		});
+  		
+  		// Submit users selected song to server application 
+  		function tubeSubmit() {
+  			console.log('tubeSubmit invoked');
+  			if (!signedIn || !inSession) {
+  				alert('Must be signed in to Google Plus and part of a session to Play!');
+  			} else {
+  				var request = {'updateSong': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName, "selected_tubeID": mVideoId};
+  				$.post(hostURL, request, 
+  					function (result){
+  						// TODO - Add more descriptive error messages for user
+  						console.log(result);
+  						if (result.dbCon == true && result.updateUser == true) {
+  							alert('Song submitted successfully');
+  						} else {
+  							alert('Not able to update selected song..');
+  						}
+  					}, 'json');
+  			};
+  		}
+  		
+  		// onClick listener of session submit button 
+  		function sessionListener() {
+  			console.log('sessionListener invoked');
+  			
+  			if (inSession) {
+  				alert('Already connected to a session! Sign Out and Sign In again to join or create a new session');
+  				return;
+  			}
+  			if (!signedIn){
+  				alert('Need to sign in to play!');
+  				return;
+  			}
+  			
+  			if ($("input[type='radio'][id='createRadio']:checked").val() == 'on'){
+  				sessionType = 'createSession';
+  			} else {
+  				sessionType = 'joinSession';
+  			}
+  			console.log('sessionType = ' + sessionType);
+
+  			if (sessionType == 'joinSession'){
+  				var request = {'joinSession': 'true', 'sessionID': $("input[name='sessionID']").val(), 'userID': mUserId, 'user': mUserName};
+  				$.post(hostURL, request, 
+  					function (result){
+  						// TODO - Add more descriptive error messages for user 
+  						console.log(result);
+  						if (result.dbCon == true && result.insertUser == true) {
+  							inSession = true; isMaster = false;
+  							mSessionId = $("input[name='sessionID']").val();
+  							alert('Successfully joined session ' + mSessionId);
+  						} else {
+  							inSession = false; isMaster = true; mSessionId = null;
+  							alert('Failed to join session ' + $("input[name='sessionID']").val());
+  						}							
+  				}, 'json');
+  			} else {
+  				var request = {'createSession': 'true', 'sessionID': $("input[name='sessionID']").val(), 'userID': mUserId, 'user': mUserName};
+  				$.post(hostURL, request, 
+  	  					function (result){
+  							// TODO - Add more descriptive error messages for user 
+  	  						console.log(result);
+  	  						if (result.dbCon == true && result.createTable == true && result.insertMaster == true) {
+  	  							inSession = true; isMaster = true;
+  	  							mSessionId = $("input[name='sessionID']").val();
+  	  							alert('Successfully created session ' + mSessionId);
+  	  						} else {
+  	  							inSession = false; isMaster = true;
+  	  							alert('Failed to create session ' + $("input[name='sessionID']").val());
+  	  						}	
+  	  				}, 'json');  				
+  			}
+  		}
+  		
+        // Feed Toggle Button Listener 
+        function feedToggleListener() {
+        	if (!signedIn || !inSession){
+        		alert('Must be in signed in and part of a session to use this feature!');
+        		return;
+        	}
+			
+        	feedToggle = !feedToggle;
+        	
+        	if (!feedToggle) {
+        		player.cueVideoById(mVideoId);
+        		$('#feedToggleButton').text('Load Feed Video');
+        	} else {
+        		var request = {'fetchFeed': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
+  				$.post(hostURL, request, 
+  	  				function (result){
+  						// TODO - Add more descriptive error messages for user 
+  	  					console.log(result);
+  	  					if (result.dbCon == true && result.masterPresent == true) {
+							player.cueVideoById(result.selectedUser.selected_tubeID);
+  	  					} else {
+   							alert('Failed to fetch the current feed..');
+  	  					}	
+  	  			}, 'json'); 
+  				$('#feedToggleButton').text('Load My Video');  				
+        	}
+        }
+  		
+  		function signinCallback(authResult) {
+  		  if (authResult['access_token']) {
+  		    // Update the app to reflect a signed in user 
+  		    // Hide the sign-in button now that the user is authorized, for example:
+  		    document.getElementById('signinButton').setAttribute('style', 'display: none');
+  		    document.getElementById('signOutButton').setAttribute('style', 'display: visible');
+  		    // Update signed in flag 
+  		    signedIn = true;
+  		    console.log('User signed in');
+  		    
+			// Load the g+ api and grab user's info 
+  			gapi.client.load('plus','v1', function(){
+  		 		var request = gapi.client.plus.people.get({'userId': 'me'});
+  		 		
+  		 		request.execute(function(resp) {
+  		   			console.log('Retrieved profile for: ' + resp.displayName + ', User ID = ' + resp.id);
+  		   			mUserId = resp.id; mUserName = resp.displayName;
+  		   			console.log('mUserName = ' + mUserName + ', mUserId = ' + mUserId);
+  		   			$('#profPic').attr("src", resp.image.url);
+  		   			$('#feedUser').attr("href", resp.url);
+  		   			$('#feedUser').attr("target", '_blank');
+  		   			$('#feedUser').text(resp.displayName);
+  		   		});
+  			}); 
+  		    
+  		  } else if (authResult['error']) {
+  		    // Update the app to reflect a signed out user 
+  		    // Possible error values:
+  		    //   "user_signed_out" - User is signed-out 
+  		    //   "access_denied" - User denied access to your app 
+  		    //   "immediate_failed" - Could not automatically log in the user 
+  		    console.log('Sign-in state: ' + authResult['error']);
+  		    document.getElementById('signOutButton').setAttribute('style', 'display: none');
+		    $('#profPic').attr("src", "img/Das_DJ.png");
+  		    $('#feedUser').attr("href", "#");
+  		    $('#feedUser').text("");
+  		    signedIn = false;
+  		  }
+  		}
+  		
+  		function signOut() {
+  			if (!isMaster && inSession) {		// if user, issue logout command 
+        		var request = {'userLogOut': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
+  				$.post(hostURL, request, 
+  	  				function (result){
+  						// TODO - Add more descriptive error messages for user 
+  	  					console.log(result);
+  	  					if (result.dbCon == true && result.updateUser == true) {
+							// User probably doesn't need any feedback here.. 
+  	  					} else {
+  	  						// This may not even really be necessary 
+   							alert('Failed to remove user from session ' + mSessionId);
+  	  					}	
+  	  			}, 'json');   				
+  			} else if (isMaster && inSession) {		// if master, issue session kill command 
+        		var request = {'killSession': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
+  				$.post(hostURL, request, 
+  	  				function (result){
+  						// TODO - Add more descriptive error messages for user 
+  	  					console.log(result);
+  	  					if (result.dbCon == true && result.masterPresent == true && result.sessionKill == true) {
+							// User probably doesn't need any feedback here.. 
+  	  					} else {
+  	  						// This may not even really be necessary 
+   							alert('Failed to remove kill session ' + mSessionId);
+  	  					}	
+  	  			}, 'json');   				
+  			}
+  			
+  			gapi.auth.signOut();
+  			document.getElementById('signinButton').setAttribute('style', 'display: visible');
+  			document.getElementById('signOutButton').setAttribute('style', 'display: none');
+  			
+  			// Reset variables to initialized state 
+  			mUserId = mUserName = mSessionId = null;
+  			inSession = false; isMaster = true;
+  			signedIn = false;
+  			feedToggle = false;
+  		}
+  		
+  		// TODO - need to add on browser/page close to remove user from session 
+  		$(window).bind("beforeunload", function() {
+  			console.log('beforeunload event fired');
+  			signOut();
+  		})
+  </script>
+    
+  <script src="https://apis.google.com/js/client.js?onload=OnLoadCallback"></script>
+  
+  <script>
+    $(document).foundation();
+  </script>
+</body>
+</html>

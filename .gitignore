@@ -1,0 +1,8 @@
+.metadata
+*.prefs
+*.xml
+*.container
+*.name
+*.project
+*.jsdtscope
+*.buildpath
