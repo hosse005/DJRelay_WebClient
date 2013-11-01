@@ -25,6 +25,7 @@
     </script> -->
     
  <!-- Header and Nav --> 
+<div class="contain-to-grid">
 <nav class="top-bar">
 	<ul class="title-area">
     	<li class="name">
@@ -35,7 +36,7 @@
     </ul>
     <section class="top-bar-section">
     	<ul class="right">
-        	<li>
+        	<li class="menu-icon">
         		<a href="#" id=signOutButton class="button" onClick="signOut()">Sign Out</a>
       		</li>
       		<li>
@@ -43,7 +44,7 @@
   					<span
     				class="g-signin"
     				data-callback="signinCallback"
-    				data-clientid="394218094207-psutb7crtq1ip1s9qqtfp254efejsfbk.apps.googleusercontent.com"
+    				data-clientid="394218094207-bnbf15blb98ogov0id9o3hunan2bcorf.apps.googleusercontent.com"
     				data-cookiepolicy="single_host_origin"
     				data-requestvisibleactions="http://schemas.google.com/AddActivity"
     				data-scope="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/youtube">
@@ -53,6 +54,7 @@
       	</ul>
     </section>
 </nav>
+</div>
  <!-- End of Header and Nav --> 
     
  <!-- Panel Header --> 
@@ -115,17 +117,15 @@
        Submit
       </button>
     </div>
-    <!-- <div class="large-6 columns"> -->
     <h1><strong>Result List:</strong></h1>
-<!--     </div>
- -->    <!-- 1. The YT results will replace this <div> tag. -->
-    <div id="ytResults"> </div>
+    <!-- 1. The YT results will replace this <div> tag. -->
+    <div id="ytResults"></div>
  	<br><br>
  </div>
  
     <!-- Right Sidebar -->
     <!-- On small devices this column is hidden -->
-    <aside class="large-3 columns hide-for-small">
+    <aside class="large-3 columns hide-for-large-down">
       <h3>Das Zahlungsmittel:</h3>
       <p><img src="http://placehold.it/300x440&text=[ad]" /></p>
       <p><img src="http://placehold.it/300x440&text=[ad]" /></p>
@@ -250,7 +250,10 @@
   						if (result.dbCon == true && result.masterPresent == true && result.usersPresent == true
   								&& result.updateFeed == true) {
   							player.cueVideoById(result.selectedUser.selected_tubeID);
+  							batonOnMe(result);
   							// TODO - get user's name/pic and display on site 
+  						} else if (result.dbCon == true && result.masterPresent == true && result.usersPresent == false){
+  							alert('No users have joined this session yet..');
   						} else {
   							// TODO - add more error handling functionality 
   							alert('Not able to update feed..');
@@ -313,7 +316,7 @@
 					$('#ytResults').empty();
  					$.each(results, function(i,v) {
 						$('#ytResults').append("<li>" + v + "</li>");
-					}); 
+					});
   				}
   				var searchInput = document.getElementById('tubeQuery').value;
   				var requestParams = {q: searchInput, part: 'snippet',
@@ -329,7 +332,8 @@
   			var index = $(this).index();
 			console.log('List item onClick handler invoked for index ' + index);
 			mVideoId = apiResponse.items[index].id.videoId;
-			player.cueVideoById(mVideoId);
+			if (player.getPlayerState() != YT.PlayerState.PLAYING)	// Don't auto cue if vid is currently playing 
+				player.cueVideoById(mVideoId);
 		});
   		
   		// Submit users selected song to server application 
@@ -382,6 +386,67 @@
   							inSession = true; isMaster = false;
   							mSessionId = $("input[name='sessionID']").val();
   							alert('Successfully joined session ' + mSessionId);
+  							
+  							// Initiate long polling for retrieving selected user info 
+/*   						var request = {'fetchFeed': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
+  							(function poll(){
+  							    var mPoll = $.ajax({ url: hostURL, data: request, type: 'POST', success: 
+  							   		// Parse returned user to see if we have been selected every 10 seconds 
+  							    	function(result){
+  							   			try {	// this code actually might not need try/catch block..  
+  							    			if (result.dbCon == true && result.masterPresent == true){
+  							        			console.log(result);
+  							    			} else if (result.dbCon == true && result.sessionNotFound == true){
+  							    				console.log(result);
+  							    				alert(mSessionId + ' is no longer active! Please join or create a new session');
+  							    				mPoll.abort();
+  							    			} else {
+  							    				alert('Error communicating w/ the DJ Relay Mothership.  Try again later..');
+  							    				mPoll.abort();
+  							    			}
+  							    		} catch (e) {
+  							    			console.log(e.message);
+  							    			console.log('Error in polling loop..');
+  							    			return;
+  							    		}
+  							    	}, dataType: 'json', timeout: '10000', complete:
+  							    	function() {setTimeout(function(){ poll() }, 10000)}, error:
+  							    	function (xhr, status, error){
+  							    		console.log(error);
+  							    		return;
+  							    	}});
+  							})(); */
+  							
+  							// setTimeout Polling Technique for retrieving selected user info - no persistent connection w/ the server 
+  							var request = {'fetchFeed': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
+  							(function poll(){
+  							   setTimeout(function(){
+  							      var mPoll = $.ajax({ url: hostURL, type: 'POST', data: request, success: 
+  							    	  function(result){
+						    	  	  	if (result.dbCon == true && result.masterPresent == true){
+							        		console.log(result);
+							        		batonOnMe(result);
+							        		// TODO - add the baton pop-up image too, make it flashy!! 
+							        		
+		  							        //Setup the next poll recursively 
+		  							        poll();
+							    		} else if (result.dbCon == true && result.sessionNotFound == true){
+							    			console.log(result);
+							    			alert(mSessionId + ' is no longer active! Please join or create a new session');
+							    			mPoll.abort();
+							    		} else {
+							    			alert('Error communicating w/ the DJ Relay Mothership.  Try again later..');
+							    			mPoll.abort();
+							    		}
+  							      }, dataType: "json", error: 
+  							    	  function (xhr, status, error) {
+  							    	  	console.log(error);
+  							    	  	//mPoll.abort();  // TODO - maybe add a counter for errors b4 bailout.. 
+  							      		
+  							      }});
+  							  }, 10000);	// 10 second polling period 
+  							})();
+  							
   						} else {
   							inSession = false; isMaster = true; mSessionId = null;
   							alert('Failed to join session ' + $("input[name='sessionID']").val());
@@ -403,6 +468,12 @@
   	  						}	
   	  				}, 'json');  				
   			}
+  		}
+  		
+  		// Check if user is selected to pick next song 
+  		function batonOnMe(result) {
+  			if (result.selectedUser.nxtSelected_userID == mUserId)
+  				alert('You have been selected to pick the next song!');
   		}
   		
         // Feed Toggle Button Listener 
