@@ -387,36 +387,6 @@
   							mSessionId = $("input[name='sessionID']").val();
   							alert('Successfully joined session ' + mSessionId);
   							
-  							// Initiate long polling for retrieving selected user info 
-/*   						var request = {'fetchFeed': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
-  							(function poll(){
-  							    var mPoll = $.ajax({ url: hostURL, data: request, type: 'POST', success: 
-  							   		// Parse returned user to see if we have been selected every 10 seconds 
-  							    	function(result){
-  							   			try {	// this code actually might not need try/catch block..  
-  							    			if (result.dbCon == true && result.masterPresent == true){
-  							        			console.log(result);
-  							    			} else if (result.dbCon == true && result.sessionNotFound == true){
-  							    				console.log(result);
-  							    				alert(mSessionId + ' is no longer active! Please join or create a new session');
-  							    				mPoll.abort();
-  							    			} else {
-  							    				alert('Error communicating w/ the DJ Relay Mothership.  Try again later..');
-  							    				mPoll.abort();
-  							    			}
-  							    		} catch (e) {
-  							    			console.log(e.message);
-  							    			console.log('Error in polling loop..');
-  							    			return;
-  							    		}
-  							    	}, dataType: 'json', timeout: '10000', complete:
-  							    	function() {setTimeout(function(){ poll() }, 10000)}, error:
-  							    	function (xhr, status, error){
-  							    		console.log(error);
-  							    		return;
-  							    	}});
-  							})(); */
-  							
   							// setTimeout Polling Technique for retrieving selected user info - no persistent connection w/ the server 
   							var request = {'fetchFeed': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
   							(function poll(){
