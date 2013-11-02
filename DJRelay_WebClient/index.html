@@ -237,29 +237,13 @@
       //    the player should play for six seconds and then stop.
       var done = false;
       function onPlayerStateChange(event) {
-      	if (event.data == YT.PlayerState.PLAYING && !done) {
+     	if (event.data == YT.PlayerState.PLAYING && !done) {
          	//setTimeout(stopVideo, 6000);
           	//done = true; 
         }
-        if (event.data == YT.PlayerState.ENDED && inSession && isMaster){
-			var request = {'updateFeed': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
-  				$.post(hostURL, request, 
-  					function (result){
-  						// TODO - Add more descriptive error messages for user 
-  						console.log(result);
-  						if (result.dbCon == true && result.masterPresent == true && result.usersPresent == true
-  								&& result.updateFeed == true) {
-  							player.cueVideoById(result.selectedUser.selected_tubeID);
-  							batonOnMe(result);
-  							// TODO - get user's name/pic and display on site 
-  						} else if (result.dbCon == true && result.masterPresent == true && result.usersPresent == false){
-  							alert('No users have joined this session yet..');
-  						} else {
-  							// TODO - add more error handling functionality 
-  							alert('Not able to update feed..');
-  						}
-  					}, 'json'); 
-         }
+        if (event.data == YT.PlayerState.ENDED && inSession && isMaster && feedToggle){		
+			updateFeed();
+        }
       }
       
       function stopVideo() {
@@ -444,6 +428,27 @@
   		function batonOnMe(result) {
   			if (result.selectedUser.nxtSelected_userID == mUserId)
   				alert('You have been selected to pick the next song!');
+  		}
+  		
+  		// Master update feed command 
+  		function updateFeed() {
+			var request = {'updateFeed': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
+				$.post(hostURL, request, 
+					function (result){
+						// TODO - Add more descriptive error messages for user 
+						console.log(result);
+						if (result.dbCon == true && result.masterPresent == true && result.usersPresent == true
+								&& result.updateFeed == true) {
+							player.cueVideoById(result.selectedUser.selected_tubeID);
+							batonOnMe(result);
+							// TODO - get user's name/pic and display on site 
+						} else if (result.dbCon == true && result.masterPresent == true && result.usersPresent == false){
+							alert('No users have joined this session yet..');
+						} else {
+							// TODO - add more error handling functionality 
+							alert('Not able to update feed..');
+						}
+					}, 'json');
   		}
   		
         // Feed Toggle Button Listener 
