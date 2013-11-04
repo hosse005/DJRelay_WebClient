@@ -256,6 +256,7 @@
   		var apiKey = 'AIzaSyBkTpVRddgK2iMsV2d9mzId_Bq20_YC4nA';
   		var apiResponse;
   		var hostURL = 'http://192.168.1.71/git/com.DJRelayServer_ACE.djRelayServer/DJ_Relay_Server/relayMain.php';	// xampp dev URL 
+  	//  var hostURL = '../../DJ_Relay_Server/DJ_Relay_Server/relayMain.php';	// djRelayDev 
   		var signedIn = false;
   		var inSession = false;				// session connection status 
   		var isMaster = true;				// session mode - only updated on server response		
@@ -264,6 +265,8 @@
   		var mVideoId;
   		var mUserId, mUserName;
   		var feedToggle = false;				// false = user's video is loaded to player, true = feed video is loaded to player 
+  		var notifFlag = true;
+  		var mPoll;
   		
   		// Callback for google API 
   		function OnLoadCallback() {
@@ -375,9 +378,9 @@
   							var request = {'fetchFeed': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
   							(function poll(){
   							   setTimeout(function(){
-  							      var mPoll = $.ajax({ url: hostURL, type: 'POST', data: request, success: 
+  							      mPoll = $.ajax({ url: hostURL, type: 'POST', data: request, success: 
   							    	  function(result){
-						    	  	  	if (result.dbCon == true && result.masterPresent == true){
+						    	  	  	if (result.dbCon == true && result.masterPresent == true && signedIn){
 							        		console.log(result);
 							        		batonOnMe(result);
 							        		// TODO - add the baton pop-up image too, make it flashy!! 
@@ -387,10 +390,9 @@
 							    		} else if (result.dbCon == true && result.sessionNotFound == true){
 							    			console.log(result);
 							    			alert(mSessionId + ' is no longer active! Please join or create a new session');
-							    			mPoll.abort();
-							    		} else {
+							    		} else if (!signedIn){}	// Don't need to do anything, just stop polling 
+  							      		  else {
 							    			alert('Error communicating w/ the DJ Relay Mothership.  Try again later..');
-							    			mPoll.abort();
 							    		}
   							      }, dataType: "json", error: 
   							    	  function (xhr, status, error) {
@@ -426,8 +428,14 @@
   		
   		// Check if user is selected to pick next song 
   		function batonOnMe(result) {
-  			if (result.selectedUser.nxtSelected_userID == mUserId)
-  				alert('You have been selected to pick the next song!');
+  			if (result.selectedUser.nxtSelected_userID == mUserId){
+  				if (notifFlag){
+  					alert('You have been selected to pick the next song!');
+					notifFlag = false;
+  				}
+  			} else { 
+  				notifFlag = true;
+  			}
   		}
   		
   		// Master update feed command 
@@ -557,6 +565,8 @@
   			inSession = false; isMaster = true;
   			signedIn = false;
   			feedToggle = false;
+  			
+  			mPoll.abort();
   		}
   		
   		// TODO - need to add on browser/page close to remove user from session 
