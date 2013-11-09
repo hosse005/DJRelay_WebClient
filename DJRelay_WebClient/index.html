@@ -106,6 +106,9 @@
     <button class = "small secondary" id="feedToggleButton" onclick="feedToggleListener();">
      Load Feed Video
     </button>
+    <button class = "small secondary right" id="skipTrack" onclick="skipTrackListener();">
+     Skip Track
+    </button>
     <div id="requestFields" style="display:none;">
       <label for="tubeQuery">Search Entry: </label>
       <input id="tubeQuery" type="text" style="color:#606055" value="Enter your Tube Search Here"
@@ -268,6 +271,8 @@
   		var notifFlag = true;
   		var mPoll;
   		
+  		$('#skipTrack').prop('disabled', true);
+  		
   		// Callback for google API 
   		function OnLoadCallback() {
   			console.log('Google API loaded.');
@@ -417,6 +422,7 @@
   	  						if (result.dbCon == true && result.createTable == true && result.insertMaster == true) {
   	  							inSession = true; isMaster = true;
   	  							mSessionId = $("input[name='sessionID']").val();
+  	  							$('#skipTrack').prop('disabled', false);
   	  							alert('Successfully created session ' + mSessionId);
   	  						} else {
   	  							inSession = false; isMaster = true;
@@ -486,6 +492,14 @@
   				$('#feedToggleButton').text('Load My Video');  				
         	}
         }
+        
+        // Skip Track Button Listener 
+        function skipTrackListener() {
+        	if (isMaster && feedToggle && inSession)
+				updateFeed();
+        	else
+        		alert('Must be master of the session and tube feed loaded to skip the track!');
+        }
   		
   		function signinCallback(authResult) {
   		  if (authResult['access_token']) {
@@ -493,6 +507,7 @@
   		    // Hide the sign-in button now that the user is authorized, for example:
   		    document.getElementById('signinButton').setAttribute('style', 'display: none');
   		    document.getElementById('signOutButton').setAttribute('style', 'display: visible');
+  		    
   		    // Update signed in flag 
   		    signedIn = true;
   		    console.log('User signed in');
@@ -559,6 +574,7 @@
   			gapi.auth.signOut();
   			document.getElementById('signinButton').setAttribute('style', 'display: visible');
   			document.getElementById('signOutButton').setAttribute('style', 'display: none');
+  		    $('#skipTrack').prop('disabled', true);
   			
   			// Reset variables to initialized state 
   			mUserId = mUserName = mSessionId = null;
@@ -567,8 +583,6 @@
   			feedToggle = false;
   			$('#feedToggleButton').text('Load Feed Video');
   			player.cueVideoById('96_vcFLWgYU');
-  			
-  			mPoll.abort();
   		}
   		
   		// TODO - need to add on browser/page close to remove user from session 
