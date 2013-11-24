@@ -60,11 +60,11 @@
  <!-- Panel Header --> 
   <div class="row"> 
   	<div class="large-12 columns">
-      	<div class="panel">      		
-      		<img class="large-4" src="img/Das_DJ.png" id="testen"/>
+      	<div class="panel">
       		<div class="large-4 columns">
       			<h1>DJ Relay</h1>
-      		</div>     		
+      		</div>      		
+      		<img class="large-4" src="img/Das_DJ.png" id="testen"/>     		
       	</div>       	
      </div>    
   </div>
@@ -75,7 +75,7 @@
     <!-- This is source ordered to be pulled to the left on larger screens -->
     <div class="large-3 columns ">
       <div class="panel">
-        <a href="#"><img id=profPic src="img/Das_DJ.png"/></a>
+        <a href="#"><img id=profPic src=""/></a>
         <h5><a href="#" id=feedUser></a></h5><br>
         <form class="custom">
         	Session ID: <input type="text" name="sessionID">
@@ -100,7 +100,7 @@
     <!-- Main Feed -->
     <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
     <div class="large-6 columns">
-    <h1><strong>Das Fütter:</strong></h1>
+    <h1><strong>The Feed:</strong></h1>
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
     <div id="player"></div>
     <button class = "small secondary" id="feedToggleButton" onclick="feedToggleListener();">
@@ -329,7 +329,6 @@
   			var DOM = $('li').get(index + 3);		// Very disgusting hack, why 3 element offset?? - FIX ME!! 
   			console.log(DOM);
 			$(DOM).animate({fontSize:'1.5em'}, 400); $(DOM).animate({fontSize:'1em'}, 400); 
-			//$(DOM).animate({})
   			console.log('List item onClick handler invoked for index ' + index);
 			mVideoId = apiResponse.items[index].id.videoId;
 			if (player.getPlayerState() != YT.PlayerState.PLAYING)	// Don't auto cue if vid is currently playing 
@@ -543,7 +542,8 @@
   		    //   "immediate_failed" - Could not automatically log in the user 
   		    console.log('Sign-in state: ' + authResult['error']);
   		    document.getElementById('signOutButton').setAttribute('style', 'display: none');
-		    $('#profPic').attr("src", "img/Das_DJ.png");
+		    //$('#profPic').attr("src", "img/Das_DJ.png");
+		    $('#profPic').attr("src", "");
   		    $('#feedUser').attr("href", "#");
   		    $('#feedUser').text("");
   		    signedIn = false;
@@ -590,10 +590,12 @@
   			signedIn = false;
   			feedToggle = false;
   			$('#feedToggleButton').text('Load Feed Video');
-		    $('#profPic').attr("src", "img/Das_DJ.png");
-  		    $('#feedUser').attr("href", "#");
+		    //$('#profPic').attr("src", "img/Das_DJ.png");
+  		    $('#profPic').attr("src", "");
+		    $('#feedUser').attr("href", "#");
   		    $('#feedUser').text("");
   			player.cueVideoById('96_vcFLWgYU');
+  			$('#ytResults').empty();
   		}
   		
   		// TODO - need to add on browser/page close to remove user from session 
