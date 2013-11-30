@@ -7,11 +7,18 @@
   <meta name="viewport" content="width=device-width">
   <title>DJ Relay</title>
 
-  
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
   <link rel="stylesheet" href="css/foundation.css">
   <link rel="shortcut icon" href="img/DJ_icon.ico">  
 
   <script src="js/vendor/custom.modernizr.js"></script>
+  
+  <style>
+  	#ytResults .ui-selecting { background: #00C3FF; }
+  	#ytResults .ui-selected { background: #00C3FF; color: white; }
+  	#ytResults { list-style-type: none; margin: 0; padding: 0; width: 100%; }
+  	#ytResults li { margin: 3px; padding: 0.4em; font-size: 1.0em; height: 50px; }
+  </style>
 
 </head>
 <body>
@@ -148,16 +155,9 @@
       </div>
     </div>
   </footer>
-
-  <!-- 	Zepto jQuery library doesn't have full animation feature set
-  <script>
-  document.write('<script src=' +
-  ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
-  '.js><\/script>')
-  </script>
-  -->
   
   <script src="js/vendor/jquery.js"></script>
+  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script> 
   
   <!--  Use for released version
   <script src="js/foundation.min.js"></script>
@@ -262,8 +262,8 @@
   <script>
   		var apiKey = 'AIzaSyBkTpVRddgK2iMsV2d9mzId_Bq20_YC4nA';
   		var apiResponse;
-		var hostURL = 'http://192.168.1.71/git/com.DJRelayServer_ACE.djRelayServer/DJ_Relay_Server/relayMain.php';	// xampp dev URL 
-  	//	var hostURL = 'http://192.168.1.71/git/com.DJRelayServer_ACE.djRelayServer/DJ_Relay_Server/relayMain.php';	// xampp dev URL 
+	//	var hostURL = 'http://192.168.1.87/git/com.DJRelayServer_ACE.djRelayServer/DJ_Relay_Server/relayMain.php';	// xampp dev URL 
+  		var hostURL = 'http://192.168.1.71/git/com.DJRelayServer_ACE.djRelayServer/DJ_Relay_Server/relayMain.php';	// xampp dev URL 
   	//  var hostURL = '../../DJ_Relay_Server/DJ_Relay_Server/relayMain.php';	// djRelayDev 
   		var signedIn = false;
   		var inSession = false;				// session connection status 
@@ -311,9 +311,11 @@
   						console.log(results[i] + "   i= " + i);
   					}
 					$('#ytResults').empty();
+					$('#ytResults').append('<ol id="selectable">')
  					$.each(results, function(i,v) {
-						$('#ytResults').append("<li>" + v + "</li>");
+						$('#ytResults').append('<li class="ui-widget-content">' + v + '</li>');
 					});
+					$('#ytResults').append('</ol>');
   				}
   				var searchInput = document.getElementById('tubeQuery').value;
   				var requestParams = {q: searchInput, part: 'snippet',
@@ -324,18 +326,36 @@
   			};
   		}
   		
-  		// Tube result list onClick handler 
+  	  	// Tube Result list onClick handler 
+  		$(function() {
+  			var index;
+  			$( "#ytResults" ).selectable(
+  	    	{filter: 'li',
+  	    	 stop: function () {
+				$('.ui-selected', this).each(function() {
+					index = $('#ytResults li').index(this);
+					console.log('index = ' + index);
+				});
+  				mVideoId = apiResponse.items[index].id.videoId;
+  				if (player.getPlayerState() != YT.PlayerState.PLAYING)	// Don't auto cue if vid is currently playing 
+  					player.cueVideoById(mVideoId);
+  	    	}
+  	    	});
+  	    });
+  	    	
+  		
+/*  		// Tube result list onClick handler 
   		$('#ytResults').on('click', 'li', function (event) {
   			var index = $(this).index();
   			var DOM = $('li').get(index + 3);		// Very disgusting hack, why 3 element offset?? - FIX ME!! 
   			console.log(DOM);
-			$(DOM).animate({fontSize:'1.5em'}, 400); $(DOM).animate({fontSize:'1em'}, 400); 
+			//$(DOM).animate({fontSize:'1.5em'}, 400); $(DOM).animate({fontSize:'1em'}, 400); 
   			console.log('List item onClick handler invoked for index ' + index);
 			mVideoId = apiResponse.items[index].id.videoId;
 			if (player.getPlayerState() != YT.PlayerState.PLAYING)	// Don't auto cue if vid is currently playing 
 				player.cueVideoById(mVideoId);
 		});
-  		
+*/  		
   		// Submit users selected song to server application 
   		function tubeSubmit() {
   			console.log('tubeSubmit invoked');
@@ -656,7 +676,6 @@
   			player.cueVideoById('96_vcFLWgYU');
   			$('#ytResults').empty();
   			$("input[name='sessionID']").val('');
-  			$('#tubeQuery').text('Enter your Tube Search Here')
   		}
  
   		// Remove user from any sessions on window close event by invoking sign out routine 
