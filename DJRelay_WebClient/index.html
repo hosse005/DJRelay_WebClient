@@ -262,7 +262,8 @@
   <script>
   		var apiKey = 'AIzaSyBkTpVRddgK2iMsV2d9mzId_Bq20_YC4nA';
   		var apiResponse;
-  		var hostURL = 'http://192.168.1.71/git/com.DJRelayServer_ACE.djRelayServer/DJ_Relay_Server/relayMain.php';	// xampp dev URL 
+		var hostURL = 'http://192.168.1.71/git/com.DJRelayServer_ACE.djRelayServer/DJ_Relay_Server/relayMain.php';	// xampp dev URL 
+  	//	var hostURL = 'http://192.168.1.71/git/com.DJRelayServer_ACE.djRelayServer/DJ_Relay_Server/relayMain.php';	// xampp dev URL 
   	//  var hostURL = '../../DJ_Relay_Server/DJ_Relay_Server/relayMain.php';	// djRelayDev 
   		var signedIn = false;
   		var inSession = false;				// session connection status 
@@ -342,17 +343,25 @@
   				alert('Must be signed in to Google Plus and part of a session to Play!');
   			} else {
   				var request = {'updateSong': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName, "selected_tubeID": mVideoId};
-  				$.post(hostURL, request, 
-  					function (result){
-  						// TODO - Add more descriptive error messages for user
-  						console.log(result);
-  						if (result.dbCon == true && result.updateUser == true) {
-  							alert('Song submitted successfully');
-  						} else {
-  							alert('Not able to update selected song..');
-  						}
-  					}, 'json');
-  			};
+			
+				$.ajax({
+					type: 		'post', 
+					url:  		hostURL,
+					data: 		request,
+					dataType: 	'json',
+					timeout:	1000,		// 1 second time out on the POST request
+					success:	function (result){
+									// TODO - Add more descriptive error messages for user
+									console.log(result);
+									if (result.dbCon == true && result.updateUser == true) {
+										alert('Song submitted successfully');
+									} else {
+										alert('Not able to update selected song..');
+									}
+								},
+					error:		function(request,status,err){ alert('Error communicating w/ the DJ Relay Mothership.  Try again later..'); }
+				});
+ 			}
   		}
   		
   		// onClick listener of session submit button 
@@ -377,65 +386,82 @@
 
   			if (sessionType == 'joinSession'){
   				var request = {'joinSession': 'true', 'sessionID': $("input[name='sessionID']").val(), 'userID': mUserId, 'user': mUserName};
-  				$.post(hostURL, request, 
-  					function (result){
-  						// TODO - Add more descriptive error messages for user 
-  						console.log(result);
-  						if (result.dbCon == true && result.insertUser == true) {
-  							inSession = true; isMaster = false;
-  							mSessionId = $("input[name='sessionID']").val();
-  							alert('Successfully joined session ' + mSessionId);
+  				
+				$.ajax({
+					type: 		'post', 
+					url:  		hostURL,
+					data: 		request,
+					dataType: 	'json',
+					timeout:	1000,		// 1 second time out on the POST request
+					success:	function (result){
+									// TODO - Add more descriptive error messages for user 
+									console.log(result);
+									if (result.dbCon == true && result.insertUser == true) {
+										inSession = true; isMaster = false;
+										mSessionId = $("input[name='sessionID']").val();
+										alert('Successfully joined session ' + mSessionId);
   							
-  							// setTimeout Polling Technique for retrieving selected user info - no persistent connection w/ the server 
-  							var request = {'fetchFeed': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
-  							(function poll(){
-  							   setTimeout(function(){
-  							      mPoll = $.ajax({ url: hostURL, type: 'POST', data: request, success: 
-  							    	  function(result){
-						    	  	  	if (result.dbCon == true && result.masterPresent == true && signedIn){
-							        		console.log(result);
-							        		batonOnMe(result);
-							        		// TODO - add the baton pop-up image too, make it flashy!! 
+										// setTimeout Polling Technique for retrieving selected user info - no persistent connection w/ the server 
+										var request = {'fetchFeed': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
+										(function poll(){
+											setTimeout(function(){
+											mPoll = $.ajax({ url: hostURL, type: 'POST', data: request, success: 
+											function(result){
+												if (result.dbCon == true && result.masterPresent == true && signedIn){
+													console.log(result);
+													batonOnMe(result);
+													// TODO - add the baton pop-up image too, make it flashy!! 
 							        		
-		  							        //Setup the next poll recursively 
-		  							        poll();
-							    		} else if (result.dbCon == true && result.sessionNotFound == true){
-							    			console.log(result);
-							    			alert(mSessionId + ' is no longer active! Please join or create a new session');
-							    		} else if (!signedIn){}	// Don't need to do anything, just stop polling 
-  							      		  else {
-							    			alert('Error communicating w/ the DJ Relay Mothership.  Try again later..');
-							    		}
-  							      }, dataType: "json", error: 
-  							    	  function (xhr, status, error) {
-  							    	  	console.log(error);
-  							    	  	//mPoll.abort();  // TODO - maybe add a counter for errors b4 bailout.. 
-  							      		
-  							      }});
-  							  }, 10000);	// 10 second polling period 
-  							})();
+													//Setup the next poll recursively 
+													poll();
+												} else if (result.dbCon == true && result.sessionNotFound == true){
+													console.log(result);
+													alert(mSessionId + ' is no longer active! Please join or create a new session');
+												} else if (!signedIn){}	// Don't need to do anything, just stop polling 
+												else {
+													alert('Error communicating w/ the DJ Relay Mothership.  Try again later..');
+												}
+											}, dataType: "json", error: 
+												function (xhr, status, error) {
+													console.log(error);
+													//mPoll.abort();  // TODO - maybe add a counter for errors b4 bailout.. 
+												}
+											});
+											}, 10000);	// 10 second polling period 
+										})();
   							
-  						} else {
-  							inSession = false; isMaster = true; mSessionId = null;
-  							alert('Failed to join session ' + $("input[name='sessionID']").val());
-  						}							
-  				}, 'json');
+									} else {
+										inSession = false; isMaster = true; mSessionId = null;
+										alert('Failed to join session ' + $("input[name='sessionID']").val());
+									}							
+								},
+					error:		function(request,status,err){ alert('Error communicating w/ the DJ Relay Mothership.  Try again later..'); }
+				});
+				
   			} else {
   				var request = {'createSession': 'true', 'sessionID': $("input[name='sessionID']").val(), 'userID': mUserId, 'user': mUserName};
-  				$.post(hostURL, request, 
-  	  					function (result){
-  							// TODO - Add more descriptive error messages for user 
-  	  						console.log(result);
-  	  						if (result.dbCon == true && result.createTable == true && result.insertMaster == true) {
-  	  							inSession = true; isMaster = true;
-  	  							mSessionId = $("input[name='sessionID']").val();
-  	  							$('#skipTrack').prop('disabled', false);
-  	  							alert('Successfully created session ' + mSessionId);
-  	  						} else {
-  	  							inSession = false; isMaster = true;
-  	  							alert('Failed to create session ' + $("input[name='sessionID']").val());
-  	  						}	
-  	  				}, 'json');  				
+  				
+				$.ajax({
+					type: 		'post', 
+					url:  		hostURL,
+					data: 		request,
+					dataType: 	'json',
+					timeout:	1000,		// 1 second time out on the POST request
+					success:	function (result){
+									// TODO - Add more descriptive error messages for user 
+									console.log(result);
+									if (result.dbCon == true && result.createTable == true && result.insertMaster == true) {
+										inSession = true; isMaster = true;
+										mSessionId = $("input[name='sessionID']").val();
+										$('#skipTrack').prop('disabled', false);
+										alert('Successfully created session ' + mSessionId);
+									} else {
+										inSession = false; isMaster = true;
+										alert('Failed to create session ' + $("input[name='sessionID']").val());
+									}	
+								},
+					error:		function(request,status,err){ alert('Error communicating w/ the DJ Relay Mothership.  Try again later..'); }
+				});  				
   			}
   		}
   		
@@ -454,22 +480,30 @@
   		// Master update feed command 
   		function updateFeed() {
 			var request = {'updateFeed': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
-				$.post(hostURL, request, 
-					function (result){
-						// TODO - Add more descriptive error messages for user 
-						console.log(result);
-						if (result.dbCon == true && result.masterPresent == true && result.usersPresent == true
-								&& result.updateFeed == true) {
-							feedToggle ? player.loadVideoById(result.selectedUser.selected_tubeID) : player.cueVideoById(result.selectedUser.selected_tubeID);
-							batonOnMe(result);
-							// TODO - get user's name/pic and display on site 
-						} else if (result.dbCon == true && result.masterPresent == true && result.usersPresent == false){
-							alert('No users have joined this session yet..');
-						} else {
-							// TODO - add more error handling functionality 
-							alert('Not able to update feed..');
-						}
-					}, 'json');
+			
+			$.ajax({
+				type: 		'post', 
+				url:  		hostURL,
+				data: 		request,
+				dataType: 	'json',
+				timeout:	1000,		// 1 second time out on the POST request
+				success:	function (result){
+								// TODO - Add more descriptive error messages for user 
+								console.log(result);
+								if (result.dbCon == true && result.masterPresent == true && result.usersPresent == true
+									&& result.updateFeed == true) {
+									feedToggle ? player.loadVideoById(result.selectedUser.selected_tubeID) : player.cueVideoById(result.selectedUser.selected_tubeID);
+									batonOnMe(result);
+									// TODO - get user's name/pic and display on site 
+								} else if (result.dbCon == true && result.masterPresent == true && result.usersPresent == false){
+									alert('No users have joined this session yet..');
+								} else {
+									// TODO - add more error handling functionality 
+									alert('Not able to update feed..');
+								}
+							},
+				error:		function(request,status,err){ alert('Error communicating w/ the DJ Relay Mothership.  Try again later..'); }
+			});
   		}
   		
         // Feed Toggle Button Listener 
@@ -486,16 +520,25 @@
         		$('#feedToggleButton').text('Load Feed Video');
         	} else {
         		var request = {'fetchFeed': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
-  				$.post(hostURL, request, 
-  	  				function (result){
-  						// TODO - Add more descriptive error messages for user 
-  	  					console.log(result);
-  	  					if (result.dbCon == true && result.masterPresent == true) {
-							player.cueVideoById(result.selectedUser.selected_tubeID);
-  	  					} else {
-   							alert('Failed to fetch the current feed..');
-  	  					}	
-  	  			}, 'json'); 
+				
+				$.ajax({
+					type: 		'post', 
+					url:  		hostURL,
+					data: 		request,
+					dataType: 	'json',
+					timeout:	1000,		// 1 second time out on the POST request
+					success:	function (result){
+									// TODO - Add more descriptive error messages for user 
+									console.log(result);
+									if (result.dbCon == true && result.masterPresent == true) {
+										player.cueVideoById(result.selectedUser.selected_tubeID);
+									} else {
+										alert('Failed to fetch the current feed..');
+									}	
+								},
+					error:		function(request,status,err){ alert('Error communicating w/ the DJ Relay Mothership.  Try again later..'); }
+				});				
+				
   				$('#feedToggleButton').text('Load My Video');  				
         	}
         }
@@ -553,30 +596,47 @@
   		function signOut() {
   			if (!isMaster && inSession) {		// if user, issue logout command 
         		var request = {'userLogOut': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
-  				$.post(hostURL, request, 
-  	  				function (result){
-  						// TODO - Add more descriptive error messages for user 
-  	  					console.log(result);
-  	  					if (result.dbCon == true && result.updateUser == true) {
-							// User probably doesn't need any feedback here.. 
-  	  					} else {
-  	  						// This may not even really be necessary 
-   							alert('Failed to remove user from session ' + mSessionId);
-  	  					}	
-  	  			}, 'json');   				
+  				
+				$.ajax({
+					type: 		'post', 
+					url:  		hostURL,
+					data: 		request,
+					dataType: 	'json',
+					timeout:	1000,		// 1 second time out on the POST request
+					success:	function (result){
+									// TODO - Add more descriptive error messages for user 
+									console.log(result);
+									if (result.dbCon == true && result.updateUser == true) {
+										// User probably doesn't need any feedback here.. 
+									} else {
+										// This may not even really be necessary 
+										alert('Failed to remove user from session ' + mSessionId);
+									}	
+								},
+					error:		function(request,status,err){ alert('Error communicating w/ the DJ Relay Mothership.  Try again later..'); }
+				});
+				   				
   			} else if (isMaster && inSession) {		// if master, issue session kill command 
         		var request = {'killSession': 'true', 'sessionID': mSessionId, 'userID': mUserId, 'user': mUserName};
-  				$.post(hostURL, request, 
-  	  				function (result){
-  						// TODO - Add more descriptive error messages for user 
-  	  					console.log(result);
-  	  					if (result.dbCon == true && result.masterPresent == true && result.sessionKill == true) {
-							// User probably doesn't need any feedback here.. 
-  	  					} else {
-  	  						// This may not even really be necessary 
-   							alert('Failed to remove kill session ' + mSessionId);
-  	  					}	
-  	  			}, 'json');   				
+				
+				$.ajax({
+					type: 		'post', 
+					url:  		hostURL,
+					data: 		request,
+					dataType: 	'json',
+					timeout:	1000,		// 1 second time out on the POST request
+					success:	function (result){
+									// TODO - Add more descriptive error messages for user 
+									console.log(result);
+									if (result.dbCon == true && result.masterPresent == true && result.sessionKill == true) {
+										// User probably doesn't need any feedback here.. 
+									} else {
+										// This may not even really be necessary 
+										alert('Failed to remove kill session ' + mSessionId);
+									}	
+								},
+					error:		function(request,status,err){ alert('Error communicating w/ the DJ Relay Mothership.  Try again later..'); }
+				});								  				
   			}
   			
   			gapi.auth.signOut();
@@ -590,15 +650,16 @@
   			signedIn = false;
   			feedToggle = false;
   			$('#feedToggleButton').text('Load Feed Video');
-		    //$('#profPic').attr("src", "img/Das_DJ.png");
   		    $('#profPic').attr("src", "");
 		    $('#feedUser').attr("href", "#");
   		    $('#feedUser').text("");
   			player.cueVideoById('96_vcFLWgYU');
   			$('#ytResults').empty();
+  			$("input[name='sessionID']").val('');
+  			$('#tubeQuery').text('Enter your Tube Search Here')
   		}
-  		
-  		// TODO - need to add on browser/page close to remove user from session 
+ 
+  		// Remove user from any sessions on window close event by invoking sign out routine 
   		$(window).bind("beforeunload", function() {
   			console.log('beforeunload event fired');
   			signOut();
