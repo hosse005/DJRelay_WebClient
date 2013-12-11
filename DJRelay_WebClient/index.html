@@ -67,7 +67,7 @@
  <!-- Panel Header --> 
   <div class="row"> 
   	<div class="large-12 columns">
-      	<div class="panel">
+      	<div class="panel radius">
       		<div class="large-4 columns">
       			<h1>DJ Relay</h1>
       		</div>      		
@@ -81,7 +81,7 @@
   <!-- Nav Sidebar -->
     <!-- This is source ordered to be pulled to the left on larger screens -->
     <div class="large-3 columns ">
-      <div class="panel">
+      <div class="panel radius">
         <a href="#"><img id=profPic src=""/></a>
         <h5><a href="#" id=feedUser></a></h5><br>
         <form class="custom">
@@ -98,6 +98,14 @@
         <p>First, you are going to need to sign with your google plus account.  If you don't already
            have one, get one its sweet.  Next, you will want to either create or join an existing session.
            Then, once you have been logged into a session, go ahead and find a song you want to submit.</p>
+        <p>Once you have submitted a song, you will be notified when you have been selected to have your submitted
+           song loaded to the tube feed.  The button right below your tube player allows you to toggle back and forth
+           between the song that is currently on the feed, or the song you have selected to be submitted.</p>
+        <p>For creators of a session, it is expected that you will be driving the loud speakers if this is session
+           is to take place in the presence of other users.  If it is a virtual session, still your session is synced 
+           to the DJ Relay services, so pay attention!  In order to get the feed rolling, you need to have your tube
+           toggle button loaded with the feed (e.g. the button will display 'Load My Video').  Then, whenever the tube
+           video reaches the end, the next song selected on the feed will automatically load and begin playing.</p>
         <p><b>WARNING: </b>
            This application utilizes the YouTube database and therefore you should be sure to check what you have selected is 
            really what you want.  With great power comes great responsibility.</p>    
@@ -136,7 +144,9 @@
     <!-- Right Sidebar -->
     <!-- On small devices this column is hidden -->
     <aside class="large-3 columns hide-for-large-down">
-      <h3>Das Zahlungsmittel:</h3>
+      <p><img src="http://placehold.it/300x440&text=[ad]" /></p>
+      <p><img src="http://placehold.it/300x440&text=[ad]" /></p>
+      <p><img src="http://placehold.it/300x440&text=[ad]" /></p>
       <p><img src="http://placehold.it/300x440&text=[ad]" /></p>
       <p><img src="http://placehold.it/300x440&text=[ad]" /></p>
     </aside>
@@ -342,20 +352,7 @@
   	    	}
   	    	});
   	    });
-  	    	
-  		
-/*  		// Tube result list onClick handler 
-  		$('#ytResults').on('click', 'li', function (event) {
-  			var index = $(this).index();
-  			var DOM = $('li').get(index + 3);		// Very disgusting hack, why 3 element offset?? - FIX ME!! 
-  			console.log(DOM);
-			//$(DOM).animate({fontSize:'1.5em'}, 400); $(DOM).animate({fontSize:'1em'}, 400); 
-  			console.log('List item onClick handler invoked for index ' + index);
-			mVideoId = apiResponse.items[index].id.videoId;
-			if (player.getPlayerState() != YT.PlayerState.PLAYING)	// Don't auto cue if vid is currently playing 
-				player.cueVideoById(mVideoId);
-		});
-*/  		
+  	    	  		
   		// Submit users selected song to server application 
   		function tubeSubmit() {
   			console.log('tubeSubmit invoked');
